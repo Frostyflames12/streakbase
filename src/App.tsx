@@ -3,6 +3,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
+import CategoriesPage from './pages/CategoriesPage'
+import SessionPage from './pages/SessionPage'
 
 function App() {
   return (
@@ -14,10 +16,10 @@ function App() {
         <ProtectedRoute><DashboardPage /></ProtectedRoute>
       } />
       <Route path="/categories" element={
-        <ProtectedRoute><div>Categories</div></ProtectedRoute>
+        <ProtectedRoute><CategoriesPage /></ProtectedRoute>
       } />
       <Route path="/session/:activityId" element={
-        <ProtectedRoute><div>Session</div></ProtectedRoute>
+        <ProtectedRoute><SessionPage /></ProtectedRoute>
       } />
     </Routes>
   )
