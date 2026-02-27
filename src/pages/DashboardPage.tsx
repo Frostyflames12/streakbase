@@ -3,7 +3,10 @@ import BottomNav from "../components/BottomNav";
 import { useProfile } from "../hooks/useProfile";
 import { useCategories } from "../hooks/useCategories";
 import { useNavigate } from "react-router-dom";
-import type { CategoryWithActivities, Activity } from "../types/database";
+import type {
+  CategoryWithActivities,
+  ActivityWithSessions,
+} from "../types/database";
 
 const FlameIcon = () => (
   <svg
@@ -47,6 +50,16 @@ export default function DashboardPage() {
         <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
+  }
+
+  function formatDuration(seconds: number): string {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hrs > 0) return `${hrs}h ${mins}m`;
+    if (mins > 0) return `${mins}m ${secs}s`;
+    return `${secs}s`;
   }
 
   return (
@@ -134,27 +147,49 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   ) : (
-                    category.activities?.map((activity: Activity) => (
-                      <div
-                        key={activity.id}
-                        className="bg-slate-800/40 backdrop-blur-2xl rounded-2xl p-5 border border-white/10 flex items-center justify-between"
-                      >
-                        <div>
-                          <p className="text-white font-semibold">
-                            {activity.name}
-                          </p>
-                          <p className="text-slate-500 text-xs mt-1">
-                            No sessions yet
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => navigate(`/session/${activity.id}`)}
-                          className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold text-sm px-5 py-2 rounded-xl shadow-[0_5px_15px_-5px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98]"
+                    category.activities?.map(
+                      (activity: ActivityWithSessions) => (
+                        <div
+                          key={activity.id}
+                          className="bg-slate-800/40 backdrop-blur-2xl rounded-2xl p-5 border border-white/10 flex items-center justify-between"
                         >
-                          Start
-                        </button>
-                      </div>
-                    ))
+                          <div>
+                            <p className="text-white font-semibold">
+                              {activity.name}
+                            </p>
+                            <p className="text-slate-500 text-xs mt-1">
+                              {activity.sessions.length === 0 ? (
+                                "No sessions yet"
+                              ) : (
+                                <>
+                                  Last:{" "}
+                                  {formatDuration(
+                                    activity.sessions[
+                                      activity.sessions.length - 1
+                                    ].duration_seconds ?? 0,
+                                  )}
+                                  {" · "}
+                                  Best:{" "}
+                                  {formatDuration(
+                                    Math.max(
+                                      ...activity.sessions.map(
+                                        (s) => s.duration_seconds ?? 0,
+                                      ),
+                                    ),
+                                  )}
+                                </>
+                              )}
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => navigate(`/session/${activity.id}`)}
+                            className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold text-sm px-5 py-2 rounded-xl shadow-[0_5px_15px_-5px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98]"
+                          >
+                            Start
+                          </button>
+                        </div>
+                      ),
+                    )
                   )}
                 </div>
               </div>

@@ -11,7 +11,7 @@ export function useCategories() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('categories')
-        .select('*, activities(*)')
+        .select('*, activities(*, sessions(*))')
         .eq('user_id', user!.id)
         .order('created_at', { ascending: true })
 

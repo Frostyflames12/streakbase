@@ -3,7 +3,7 @@ import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
 import { useCategories } from '../hooks/useCategories'
 import { useCategoryMutations } from '../hooks/useCategoryMutations'
-import type { CategoryWithActivities, Activity } from '../types/database'
+import type { CategoryWithActivities, ActivityWithSessions } from '../types/database'
 
 export default function CategoriesPage() {
   const { categories, isLoading } = useCategories()
@@ -77,7 +77,7 @@ export default function CategoriesPage() {
                   {category.activities?.length === 0 ? (
                     <p className="text-slate-500 text-sm">No activities yet.</p>
                   ) : (
-                    category.activities?.map((activity: Activity) => (
+                    category.activities?.map((activity: ActivityWithSessions) => (
                       <div
                         key={activity.id}
                         className="flex items-center justify-between bg-slate-900/50 rounded-xl px-4 py-3"

@@ -37,5 +37,10 @@ export type Session = {
 }
 
 export type CategoryWithActivities = Category & {
-  activities: Activity[]
+  activities: ActivityWithSessions[]
 }
+
+export type ActivityWithSessions = Activity & {
+  sessions: Session[]
+}
+
