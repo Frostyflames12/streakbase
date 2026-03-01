@@ -59,11 +59,16 @@ export default function SessionPage() {
     }
 
     if (daysDiff === 1) {
-      // Last active was yesterday — increment streak
+      const newStreak = currentStreak + 1;
+      const newTokens =
+        (newStreak === 7 || newStreak === 30) && freezeTokens < 2
+          ? freezeTokens + 1
+          : freezeTokens;
+
       return {
-        streak_count: currentStreak + 1,
+        streak_count: newStreak,
         last_active_date: today.toLocaleDateString("en-CA"),
-        freeze_tokens: freezeTokens,
+        freeze_tokens: newTokens,
       };
     }
 
