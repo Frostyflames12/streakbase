@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
+import { useStreak } from "../hooks/useStreak";
 
 function formatTime(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
@@ -21,6 +22,7 @@ export default function SessionPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { updateStreakAfterSession } = useStreak();
 
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,66 +30,6 @@ export default function SessionPage() {
 
   const startedAtRef = useRef<Date>(new Date());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  function getStreakUpdate(
-    lastActiveDateStr: string | null,
-    currentStreak: number,
-    freezeTokens: number,
-  ) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (!lastActiveDateStr) {
-      // First session ever
-      return {
-        streak_count: 1,
-        last_active_date: today.toLocaleDateString("en-CA"),
-        freeze_tokens: freezeTokens,
-      };
-    }
-
-    const lastActive = new Date(lastActiveDateStr);
-    lastActive.setHours(0, 0, 0, 0);
-
-    const daysDiff = Math.round(
-      (today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24),
-    );
-
-    if (daysDiff === 0) {
-      // Already did a session today — no change
-      return null;
-    }
-
-    if (daysDiff === 1) {
-      const newStreak = currentStreak + 1;
-      const newTokens =
-        (newStreak === 7 || newStreak === 30) && freezeTokens < 2
-          ? freezeTokens + 1
-          : freezeTokens;
-
-      return {
-        streak_count: newStreak,
-        last_active_date: today.toLocaleDateString("en-CA"),
-        freeze_tokens: newTokens,
-      };
-    }
-
-    // 2+ days ago — check freeze tokens
-    if (freezeTokens > 0) {
-      return {
-        streak_count: currentStreak,
-        last_active_date: today.toLocaleDateString("en-CA"),
-        freeze_tokens: freezeTokens - 1,
-      };
-    }
-
-    // No freeze tokens — reset
-    return {
-      streak_count: 1,
-      last_active_date: today.toLocaleDateString("en-CA"),
-      freeze_tokens: 0,
-    };
-  }
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -120,31 +62,8 @@ export default function SessionPage() {
 
       if (sessionError) throw sessionError;
 
-      // Step 2: Fetch current profile
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("streak_count, last_active_date, freeze_tokens")
-        .eq("id", user!.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      // Step 3: Calculate streak update
-      const update = getStreakUpdate(
-        profile.last_active_date,
-        profile.streak_count,
-        profile.freeze_tokens,
-      );
-
-      // Step 4: Apply update if needed
-      if (update) {
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update(update)
-          .eq("id", user!.id);
-
-        if (updateError) throw updateError;
-      }
+      // Step 2: Update streak
+      await updateStreakAfterSession();
 
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
