@@ -4,20 +4,19 @@ import { useProfile } from "../hooks/useProfile";
 import { useCategories } from "../hooks/useCategories";
 import { useStreak } from "../hooks/useStreak";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type {
   CategoryWithActivities,
   ActivityWithSessions,
 } from "../types/database";
 
-const FlameIcon = () => (
+// --- Visual Assets (Icons) ---
+const FlameIcon = ({ className = "" }: { className?: string }) => (
   <svg
-    width="32"
-    height="32"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="drop-shadow-[0_0_10px_rgba(249,115,22,0.3)]"
+    className={`w-8 h-8 ${className}`}
   >
     <path
       d="M8.5 14.5C7.5 13 7 11.5 7 9.5C7 6 9.5 3 12 2C14.5 3 17 6 17 9.5C17 11.5 16.5 13 15.5 14.5C17 15.5 18 17.5 18 19.5C18 21.5 16 23 14 23C13 23 11.5 22 12 20C12.5 18 14 16.5 14.5 15.5C13.5 15 12 14 10.5 15.5C9 17 8.5 18.5 8 20C7.5 21.5 6 23 4 23C2 23 0 21.5 0 19.5C0 17.5 1 15.5 2.5 14.5C1.5 13 1 11.5 1 9.5C1 4 6 0 12 0C18 0 23 4 23 9.5C23 11.5 22.5 13 21.5 14.5C23 15.5 24 17.5 24 19.5C24 22.5 21 24 18 24C15.5 24 14 22.5 14 21.5C14 22.5 12.5 24 10 24C7 24 4 22.5 4 19.5C4 17.5 5 15.5 6.5 14.5C5.5 13 5 11.5 5 9.5C5 6.5 7 4.5 8.5 3.5C7.5 5.5 7 7.5 7 9.5C7 11.5 7.5 13 8.5 14.5Z"
@@ -39,11 +38,36 @@ const FlameIcon = () => (
   </svg>
 );
 
+const PlayIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M8 5V19L19 12L8 5Z" />
+  </svg>
+);
+
+const TrophyIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+    <path d="M4 22h16" />
+    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+  </svg>
+);
+
+const ClockIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
 export default function DashboardPage() {
   const { profile, isLoading: profileLoading } = useProfile();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { checkMissedDay } = useStreak();
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
 
   const isLoading = profileLoading || categoriesLoading;
 
@@ -52,10 +76,20 @@ export default function DashboardPage() {
     checkMissedDay(profile);
   }, [profile]);
 
+  // Trigger simple entrance animation
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="relative">
+            <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+            </div>
+        </div>
       </div>
     );
   }
@@ -71,131 +105,167 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] pb-24">
-      {/* Background Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 pb-28 text-slate-100 font-sans selection:bg-orange-500/30">
+      
+      {/* --- Ambient Background Effects --- */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
+        <div className="absolute top-[20%] right-[-20%] w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-500/5 blur-[120px] rounded-full" />
+      </div>
 
-      <div className="relative max-w-md mx-auto px-4 pt-8">
-        {/* Header */}
+      <div className={`relative max-w-md mx-auto px-5 pt-8 transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+        
+        {/* --- Header --- */}
         <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-2">
-            <FlameIcon />
-            <h1 className="text-2xl font-black text-white tracking-tight">
-              Streak
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-400">
-                Base
+          <div className="flex items-center gap-3">
+            <div className="relative">
+                <div className="absolute inset-0 bg-orange-500/20 blur-md rounded-full" />
+                <FlameIcon className="relative drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+            </div>
+            <h1 className="text-2xl font-black tracking-tight italic">
+              STREAK
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-yellow-400">
+                BASE
               </span>
             </h1>
           </div>
-          <p className="text-slate-400 text-sm font-medium">
-            Hey,{" "}
-            <span className="text-white font-bold">{profile?.username}</span> 👋
-          </p>
-        </div>
-
-        {/* Streak Hero Card */}
-        <div className="bg-slate-800/40 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] mb-6 text-center">
-          <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-2">
-            Current Streak
-          </p>
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-amber-500">
-              {profile?.streak_count ?? 0}
+          <div className="flex flex-col items-end">
+            <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Welcome back</span>
+            <span className="text-sm font-bold text-white bg-slate-800/50 px-3 py-1 rounded-full border border-white/5">
+                {profile?.username} <span className="ml-1">👋</span>
             </span>
-            <span className="text-4xl">🔥</span>
-          </div>
-          <p className="text-slate-400 text-sm">
-            {profile?.streak_count === 1
-              ? "1 day"
-              : `${profile?.streak_count ?? 0} days`}{" "}
-            and counting
-          </p>
-
-          {/* Freeze Tokens */}
-          <div className="mt-6 pt-6 border-t border-white/10 flex items-center justify-center gap-2">
-            <span className="text-slate-400 text-sm">Freeze tokens:</span>
-            <div className="flex gap-1">
-              {[...Array(2)].map((_, i) => (
-                <span
-                  key={i}
-                  className={`text-xl ${i < (profile?.freeze_tokens ?? 0) ? "opacity-100" : "opacity-20"}`}
-                >
-                  🧊
-                </span>
-              ))}
-            </div>
           </div>
         </div>
 
-        {/* Categories + Activities */}
-        <div className="flex flex-col gap-6">
+        {/* --- Hero Card (Glassmorphism) --- */}
+        <div className="relative group mb-8">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
+            <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden">
+                
+                {/* Background Pattern within card */}
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
+                
+                <div className="relative z-10 flex flex-col items-center">
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                        Current Streak
+                    </p>
+                    
+                    <div className="flex items-end gap-3 mb-2">
+                        <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 leading-none tracking-tighter drop-shadow-lg">
+                            {profile?.streak_count ?? 0}
+                        </span>
+                        <div className="pb-3 animate-bounce duration-[2000ms]">
+                            <span className="text-4xl filter drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">🔥</span>
+                        </div>
+                    </div>
+                    
+                    <p className="text-slate-400 text-sm font-medium">
+                        {profile?.streak_count === 1 ? "Day" : "Days"} on fire
+                    </p>
+
+                    {/* Freeze Token Inventory */}
+                    <div className="mt-8 w-full bg-slate-950/40 rounded-2xl p-3 border border-white/5 flex items-center justify-between px-6">
+                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Freeze Tokens</span>
+                        <div className="flex gap-2">
+                        {[...Array(2)].map((_, i) => (
+                            <div
+                                key={i}
+                                className={`
+                                    w-8 h-8 rounded-lg flex items-center justify-center text-lg border transition-all duration-300
+                                    ${i < (profile?.freeze_tokens ?? 0) 
+                                        ? "bg-blue-500/20 border-blue-400/30 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
+                                        : "bg-slate-800/50 border-slate-700 text-slate-600 opacity-50 grayscale"}
+                                `}
+                            >
+                                🧊
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {/* --- Categories & Activities --- */}
+        <div className="space-y-8">
           {!categories || categories.length === 0 ? (
-            <div className="bg-slate-800/40 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 text-center">
-              <p className="text-slate-400 mb-2">No categories yet.</p>
+            <div className="bg-slate-900/50 backdrop-blur-md rounded-3xl p-10 border border-dashed border-slate-700 text-center flex flex-col items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-2xl">📂</div>
+              <p className="text-slate-400">Your dashboard is empty.</p>
               <button
                 onClick={() => navigate("/categories")}
-                className="text-orange-400 hover:text-orange-300 font-bold text-sm transition-all"
+                className="bg-white text-slate-900 px-6 py-2 rounded-full font-bold text-sm hover:scale-105 transition-transform"
               >
-                Create your first one →
+                Create Category →
               </button>
             </div>
           ) : (
             categories.map((category: CategoryWithActivities) => (
-              <div key={category.id}>
-                <h2 className="text-slate-300 text-xs font-bold uppercase tracking-widest ml-1 mb-3">
-                  {category.name}
-                </h2>
-                <div className="flex flex-col gap-3">
+              <div key={category.id} className="animate-in slide-in-from-bottom-5 duration-700 fade-in">
+                <div className="flex items-center gap-3 mb-4 pl-2">
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
+                    <h2 className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] shadow-black drop-shadow-sm">
+                    {category.name}
+                    </h2>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
+                </div>
+
+                <div className="grid gap-3">
                   {category.activities?.length === 0 ? (
-                    <div className="bg-slate-800/40 rounded-2xl p-4 border border-white/10">
-                      <p className="text-slate-500 text-sm">
-                        No activities in this category.
-                      </p>
+                    <div className="bg-slate-900/30 rounded-xl p-4 border border-slate-800 text-center">
+                      <p className="text-slate-600 text-xs italic">No activities yet.</p>
                     </div>
                   ) : (
                     category.activities?.map(
                       (activity: ActivityWithSessions) => (
                         <div
                           key={activity.id}
-                          className="bg-slate-800/40 backdrop-blur-2xl rounded-2xl p-5 border border-white/10 flex items-center justify-between"
+                          className="group relative bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1"
                         >
-                          <div>
-                            <p className="text-white font-semibold">
-                              {activity.name}
-                            </p>
-                            <p className="text-slate-500 text-xs mt-1">
-                              {activity.sessions.length === 0 ? (
-                                "No sessions yet"
-                              ) : (
-                                <>
-                                  Last:{" "}
-                                  {formatDuration(
-                                    activity.sessions[
-                                      activity.sessions.length - 1
-                                    ].duration_seconds ?? 0,
-                                  )}
-                                  {" · "}
-                                  Best:{" "}
-                                  {formatDuration(
-                                    Math.max(
-                                      ...activity.sessions.map(
-                                        (s) => s.duration_seconds ?? 0,
-                                      ),
-                                    ),
-                                  )}
-                                </>
-                              )}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => navigate(`/session/${activity.id}`)}
-                            className="bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold text-sm px-5 py-2 rounded-xl shadow-[0_5px_15px_-5px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98]"
-                          >
-                            Start
-                          </button>
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                            
+                            <div className="flex items-center justify-between p-4 relative z-10">
+                                <div className="flex-1 min-w-0 mr-4">
+                                    <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
+                                        {activity.name}
+                                    </h3>
+                                    
+                                    {/* Stats Pills */}
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {activity.sessions.length > 0 ? (
+                                            <>
+                                                <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                                    <ClockIcon />
+                                                    <span className="text-[10px] font-medium text-slate-400 uppercase">Last</span>
+                                                    <span className="text-xs font-semibold text-slate-200 font-mono">
+                                                        {formatDuration(activity.sessions[activity.sessions.length - 1].duration_seconds ?? 0)}
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                                    <TrophyIcon />
+                                                    <span className="text-[10px] font-medium text-slate-400 uppercase">Best</span>
+                                                    <span className="text-xs font-semibold text-amber-200 font-mono">
+                                                        {formatDuration(Math.max(...activity.sessions.map((s) => s.duration_seconds ?? 0)))}
+                                                    </span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <span className="text-xs text-slate-500 italic">No sessions recorded yet</span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => navigate(`/session/${activity.id}`)}
+                                    className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
+                                    aria-label="Start Session"
+                                >
+                                    <PlayIcon />
+                                </button>
+                            </div>
                         </div>
-                      ),
+                      )
                     )
                   )}
                 </div>
