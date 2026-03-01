@@ -2,11 +2,15 @@
 import BottomNav from "../components/BottomNav";
 import { useProfile } from "../hooks/useProfile";
 import { useCategories } from "../hooks/useCategories";
+import { supabase } from "../lib/supabase";
 import { useNavigate } from "react-router-dom";
 import type {
   CategoryWithActivities,
   ActivityWithSessions,
 } from "../types/database";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "../context/AuthContext";
+import { useEffect } from "react";
 
 const FlameIcon = () => (
   <svg
@@ -42,7 +46,47 @@ export default function DashboardPage() {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const navigate = useNavigate();
 
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   const isLoading = profileLoading || categoriesLoading;
+
+  useEffect(() => {
+    if (!profile || !profile.last_active_date) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const lastActive = new Date(profile.last_active_date);
+    lastActive.setHours(0, 0, 0, 0);
+
+    const daysDiff = Math.round(
+      (today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
+    if (daysDiff < 2) return; // active yesterday or today — nothing to do
+
+    const update =
+      profile.freeze_tokens > 0
+        ? {
+            freeze_tokens: profile.freeze_tokens - 1,
+            last_active_date: new Date(
+              today.getTime() - 86400000,
+            ).toLocaleDateString("en-CA"),
+          }
+        : {
+            streak_count: 0,
+            last_active_date: profile.last_active_date,
+          };
+
+    supabase
+      .from("profiles")
+      .update(update)
+      .eq("id", user!.id)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      });
+  }, [profile]);
 
   if (isLoading) {
     return (
