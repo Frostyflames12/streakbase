@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import CategoriesPage from './pages/CategoriesPage'
 import SessionPage from './pages/SessionPage'
+import ProfilePage from './pages/ProfilePage'
 
 function App() {
   return (
@@ -15,6 +16,10 @@ function App() {
       <Route path="/" element={
         <ProtectedRoute><DashboardPage /></ProtectedRoute>
       } />
+      <Route path="/profile" element={
+        <ProtectedRoute><ProfilePage /></ProtectedRoute>
+      } />
+
       <Route path="/categories" element={
         <ProtectedRoute><CategoriesPage /></ProtectedRoute>
       } />
