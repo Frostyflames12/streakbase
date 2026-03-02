@@ -1,5 +1,6 @@
 // src/pages/DashboardPage.tsx
 import BottomNav from "../components/BottomNav";
+import { useWeeklyActivity } from "../hooks/useWeeklyActivity";
 import { useProfile } from "../hooks/useProfile";
 import { useCategories } from "../hooks/useCategories";
 import { useStreak } from "../hooks/useStreak";
@@ -45,7 +46,16 @@ const PlayIcon = () => (
 );
 
 const TrophyIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
     <path d="M4 22h16" />
@@ -56,7 +66,16 @@ const TrophyIcon = () => (
 );
 
 const ClockIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
@@ -68,6 +87,7 @@ export default function DashboardPage() {
   const { checkMissedDay } = useStreak();
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
+  const { weeklyActivity } = useWeeklyActivity();
 
   const isLoading = profileLoading || categoriesLoading;
 
@@ -81,14 +101,22 @@ export default function DashboardPage() {
     setMounted(true);
   }, []);
 
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - 6 + i);
+    return date.toLocaleDateString("en-CA");
+  });
+
+  const activeDates = new Set(weeklyActivity?.map((s) => s.date));
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
         <div className="relative">
-            <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
-            <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-            </div>
+          <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+          </div>
         </div>
       </div>
     );
@@ -106,7 +134,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28 text-slate-100 font-sans selection:bg-orange-500/30">
-      
       {/* --- Ambient Background Effects --- */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
@@ -114,14 +141,15 @@ export default function DashboardPage() {
         <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-500/5 blur-[120px] rounded-full" />
       </div>
 
-      <div className={`relative max-w-md mx-auto px-5 pt-8 transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-        
+      <div
+        className={`relative max-w-md mx-auto px-5 pt-8 transition-opacity duration-700 ${mounted ? "opacity-100" : "opacity-0"}`}
+      >
         {/* --- Header --- */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
             <div className="relative">
-                <div className="absolute inset-0 bg-orange-500/20 blur-md rounded-full" />
-                <FlameIcon className="relative drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
+              <div className="absolute inset-0 bg-orange-500/20 blur-md rounded-full" />
+              <FlameIcon className="relative drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
             </div>
             <h1 className="text-2xl font-black tracking-tight italic">
               STREAK
@@ -131,67 +159,96 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">Welcome back</span>
+            <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">
+              Welcome back
+            </span>
             <span className="text-sm font-bold text-white bg-slate-800/50 px-3 py-1 rounded-full border border-white/5">
-                {profile?.username} <span className="ml-1">👋</span>
+              {profile?.username} <span className="ml-1">👋</span>
             </span>
           </div>
         </div>
 
         {/* --- Hero Card (Glassmorphism) --- */}
         <div className="relative group mb-8">
-            <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
-            <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden">
-                
-                {/* Background Pattern within card */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-                
-                <div className="relative z-10 flex flex-col items-center">
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-                        Current Streak
-                    </p>
-                    
-                    <div className="flex items-end gap-3 mb-2">
-                        <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 leading-none tracking-tighter drop-shadow-lg">
-                            {profile?.streak_count ?? 0}
-                        </span>
-                        <div className="pb-3 animate-bounce duration-[2000ms]">
-                            <span className="text-4xl filter drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">🔥</span>
-                        </div>
-                    </div>
-                    
-                    <p className="text-slate-400 text-sm font-medium">
-                        {profile?.streak_count === 1 ? "Day" : "Days"} on fire
-                    </p>
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
+          <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden">
+            {/* Background Pattern within card */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
 
-                    {/* Freeze Token Inventory */}
-                    <div className="mt-8 w-full bg-slate-950/40 rounded-2xl p-3 border border-white/5 flex items-center justify-between px-6">
-                        <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Freeze Tokens</span>
-                        <div className="flex gap-2">
-                        {[...Array(2)].map((_, i) => (
-                            <div
-                                key={i}
-                                className={`
-                                    w-8 h-8 rounded-lg flex items-center justify-center text-lg border transition-all duration-300
-                                    ${i < (profile?.freeze_tokens ?? 0) 
-                                        ? "bg-blue-500/20 border-blue-400/30 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.3)]" 
-                                        : "bg-slate-800/50 border-slate-700 text-slate-600 opacity-50 grayscale"}
-                                `}
-                            >
-                                🧊
-                            </div>
-                        ))}
-                        </div>
-                    </div>
+            <div className="relative z-10 flex flex-col items-center">
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
+                Current Streak
+              </p>
+
+              <div className="flex items-end gap-3 mb-2">
+                <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 leading-none tracking-tighter drop-shadow-lg">
+                  {profile?.streak_count ?? 0}
+                </span>
+                <div className="pb-3 animate-bounce duration-[2000ms]">
+                  <span className="text-4xl filter drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">
+                    🔥
+                  </span>
                 </div>
+              </div>
+
+              <p className="text-slate-400 text-sm font-medium">
+                {profile?.streak_count === 1 ? "Day" : "Days"} on fire
+              </p>
+
+              {/* Weekly Dots */}
+              <div className="mt-6 flex justify-between w-full px-4">
+                {last7Days.map((day) => (
+                  <div key={day} className="flex flex-col items-center gap-1.5">
+                    <span className="text-slate-500 text-xs">
+                      {new Date(day + "T12:00:00")
+                        .toLocaleDateString("en-US", { weekday: "short" })
+                        .charAt(0)}
+                    </span>
+                    <div
+                      className={`w-3 h-3 rounded-full transition-all ${
+                        activeDates.has(day)
+                          ? "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"
+                          : "bg-slate-700"
+                      }`}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Freeze Token Inventory */}
+              <div className="mt-8 w-full bg-slate-950/40 rounded-2xl p-3 border border-white/5 flex items-center justify-between px-6">
+                <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+                  Freeze Tokens
+                </span>
+                <div className="flex gap-2">
+                  {[...Array(2)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`
+                                    w-8 h-8 rounded-lg flex items-center justify-center text-lg border transition-all duration-300
+                                    ${
+                                      i < (profile?.freeze_tokens ?? 0)
+                                        ? "bg-blue-500/20 border-blue-400/30 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
+                                        : "bg-slate-800/50 border-slate-700 text-slate-600 opacity-50 grayscale"
+                                    }
+                                `}
+                    >
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
+          </div>
         </div>
 
         {/* --- Categories & Activities --- */}
         <div className="space-y-8">
           {!categories || categories.length === 0 ? (
             <div className="bg-slate-900/50 backdrop-blur-md rounded-3xl p-10 border border-dashed border-slate-700 text-center flex flex-col items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-2xl">📂</div>
+              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center text-2xl">
+                📂
+              </div>
               <p className="text-slate-400">Your dashboard is empty.</p>
               <button
                 onClick={() => navigate("/categories")}
@@ -202,19 +259,24 @@ export default function DashboardPage() {
             </div>
           ) : (
             categories.map((category: CategoryWithActivities) => (
-              <div key={category.id} className="animate-in slide-in-from-bottom-5 duration-700 fade-in">
+              <div
+                key={category.id}
+                className="animate-in slide-in-from-bottom-5 duration-700 fade-in"
+              >
                 <div className="flex items-center gap-3 mb-4 pl-2">
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
-                    <h2 className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] shadow-black drop-shadow-sm">
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
+                  <h2 className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] shadow-black drop-shadow-sm">
                     {category.name}
-                    </h2>
-                    <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
+                  </h2>
+                  <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-slate-700 to-transparent opacity-50"></div>
                 </div>
 
                 <div className="grid gap-3">
                   {category.activities?.length === 0 ? (
                     <div className="bg-slate-900/30 rounded-xl p-4 border border-slate-800 text-center">
-                      <p className="text-slate-600 text-xs italic">No activities yet.</p>
+                      <p className="text-slate-600 text-xs italic">
+                        No activities yet.
+                      </p>
                     </div>
                   ) : (
                     category.activities?.map(
@@ -223,49 +285,67 @@ export default function DashboardPage() {
                           key={activity.id}
                           className="group relative bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-                            
-                            <div className="flex items-center justify-between p-4 relative z-10">
-                                <div className="flex-1 min-w-0 mr-4">
-                                    <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
-                                        {activity.name}
-                                    </h3>
-                                    
-                                    {/* Stats Pills */}
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {activity.sessions.length > 0 ? (
-                                            <>
-                                                <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
-                                                    <ClockIcon />
-                                                    <span className="text-[10px] font-medium text-slate-400 uppercase">Last</span>
-                                                    <span className="text-xs font-semibold text-slate-200 font-mono">
-                                                        {formatDuration(activity.sessions[activity.sessions.length - 1].duration_seconds ?? 0)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
-                                                    <TrophyIcon />
-                                                    <span className="text-[10px] font-medium text-slate-400 uppercase">Best</span>
-                                                    <span className="text-xs font-semibold text-amber-200 font-mono">
-                                                        {formatDuration(Math.max(...activity.sessions.map((s) => s.duration_seconds ?? 0)))}
-                                                    </span>
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <span className="text-xs text-slate-500 italic">No sessions recorded yet</span>
-                                        )}
-                                    </div>
-                                </div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
 
-                                <button
-                                    onClick={() => navigate(`/session/${activity.id}`)}
-                                    className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
-                                    aria-label="Start Session"
-                                >
-                                    <PlayIcon />
-                                </button>
+                          <div className="flex items-center justify-between p-4 relative z-10">
+                            <div className="flex-1 min-w-0 mr-4">
+                              <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
+                                {activity.name}
+                              </h3>
+
+                              {/* Stats Pills */}
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {activity.sessions.length > 0 ? (
+                                  <>
+                                    <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                      <ClockIcon />
+                                      <span className="text-[10px] font-medium text-slate-400 uppercase">
+                                        Last
+                                      </span>
+                                      <span className="text-xs font-semibold text-slate-200 font-mono">
+                                        {formatDuration(
+                                          activity.sessions[
+                                            activity.sessions.length - 1
+                                          ].duration_seconds ?? 0,
+                                        )}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                      <TrophyIcon />
+                                      <span className="text-[10px] font-medium text-slate-400 uppercase">
+                                        Best
+                                      </span>
+                                      <span className="text-xs font-semibold text-amber-200 font-mono">
+                                        {formatDuration(
+                                          Math.max(
+                                            ...activity.sessions.map(
+                                              (s) => s.duration_seconds ?? 0,
+                                            ),
+                                          ),
+                                        )}
+                                      </span>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <span className="text-xs text-slate-500 italic">
+                                    No sessions recorded yet
+                                  </span>
+                                )}
+                              </div>
                             </div>
+
+                            <button
+                              onClick={() =>
+                                navigate(`/session/${activity.id}`)
+                              }
+                              className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
+                              aria-label="Start Session"
+                            >
+                              <PlayIcon />
+                            </button>
+                          </div>
                         </div>
-                      )
+                      ),
                     )
                   )}
                 </div>

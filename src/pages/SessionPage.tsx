@@ -67,6 +67,7 @@ export default function SessionPage() {
 
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['weeklyActivity', user?.id] })
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
