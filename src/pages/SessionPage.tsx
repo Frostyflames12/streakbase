@@ -6,6 +6,21 @@ import { useAuth } from "../context/AuthContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStreak } from "../hooks/useStreak";
 
+// --- Icons ---
+const StopIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+    <rect x="6" y="6" width="12" height="12" rx="2" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 6h18" />
+    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+  </svg>
+);
+
 function formatTime(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
   const mins = Math.floor((seconds % 3600) / 60);
@@ -27,17 +42,27 @@ export default function SessionPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState("");
 
   const startedAtRef = useRef<Date>(new Date());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Start Timer
   useEffect(() => {
+    // Prevent accidental navigation away
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     intervalRef.current = setInterval(() => {
       setElapsedSeconds((prev) => prev + 1);
     }, 1000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 
@@ -57,72 +82,116 @@ export default function SessionPage() {
         started_at: startedAtRef.current.toISOString(),
         ended_at: endedAt.toISOString(),
         duration_seconds: elapsedSeconds,
-        date: new Date().toLocaleDateString("en-CA"),
+        notes: notes,
+        date: new Date().toLocaleDateString("en-CA"), // Uses local date
       });
 
       if (sessionError) throw sessionError;
 
-      // Step 2: Update streak
+      // Step 2: Update streak logic
       await updateStreakAfterSession();
 
+      // Step 3: Refresh data
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['weeklyActivity', user?.id] })
-      queryClient.invalidateQueries({ queryKey: ['yearlyActivity', user?.id] })
+      queryClient.invalidateQueries({ queryKey: ["weeklyActivity", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["yearlyActivity", user?.id] });
+      
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setIsSaving(false);
+      // Restart timer if it failed? Optional. For now, we leave it stopped.
     }
   }
 
+  function handleCancel() {
+    // Safety check: Don't let them delete > 10 seconds of work without asking
+    if (elapsedSeconds > 10) {
+      const confirm = window.confirm("Are you sure you want to discard this session? It will not be saved.");
+      if (!confirm) return;
+    }
+    navigate("/");
+  }
+
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
-      {/* Background Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      
+      {/* --- Ambient Pulse Background --- */}
+      {/* The 'animate-pulse' gives it a breathing effect */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 blur-[100px] rounded-full pointer-events-none animate-pulse duration-[3000ms]" />
+      
+      <div className="relative w-full max-w-sm z-10 flex flex-col items-center">
+        
+        {/* Status Pill */}
+        <div className="mb-10 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">
+          • Focus Mode Active
+        </div>
 
-      <div className="relative w-full max-w-md">
-        <div className="bg-slate-800/40 backdrop-blur-2xl rounded-3xl p-10 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] text-center">
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">
-            Session in Progress
-          </p>
-          <p className="text-slate-500 text-sm mb-8">
-            Stay focused. You've got this.
-          </p>
-
-          {/* Timer Display */}
-          <div className="mb-10">
-            <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-orange-400 to-amber-500 tabular-nums">
-              {formatTime(elapsedSeconds)}
+        {/* --- Main Timer --- */}
+        <div className="mb-12 relative">
+            {/* Glowing blur behind numbers */}
+            <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full opacity-50"></div>
+            <span className="relative z-10 text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 tabular-nums tracking-tight font-mono drop-shadow-2xl">
+                {formatTime(elapsedSeconds)}
             </span>
-          </div>
+        </div>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl mb-6 text-sm">
-              {error}
+        {/* --- Notes Input --- */}
+        <div className="w-full mb-8 group">
+          <div className="relative">
+            <textarea
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add a note about this session..."
+              className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-5 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-none h-32 text-sm leading-relaxed"
+            />
+            {/* Subtle corner accent */}
+            <div className="absolute bottom-3 right-3 pointer-events-none">
+                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-700">
+                    <path d="M10 10L0 10L10 0V10Z" fill="currentColor"/>
+                 </svg>
             </div>
-          )}
+          </div>
+        </div>
 
-          {/* Stop Button */}
+        {/* Error Message */}
+        {error && (
+          <div className="w-full bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-6 text-sm text-center">
+            {error}
+          </div>
+        )}
+
+        {/* --- Controls --- */}
+        <div className="w-full flex flex-col gap-3">
+          {/* Main Action: Stop & Save */}
           <button
             onClick={handleStop}
             disabled={isSaving}
-            className="group relative w-full py-4 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white font-bold text-lg shadow-[0_10px_20px_-10px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98] disabled:opacity-50 overflow-hidden"
+            className="group relative w-full h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98] disabled:opacity-50 overflow-hidden flex items-center justify-center gap-2"
           >
-            <span className="relative z-10">
-              {isSaving ? "Saving..." : "Stop Session"}
-            </span>
-            <div className="absolute inset-0 bg-white/20 translate-y-[100%] group-hover:translate-y-[0%] transition-transform duration-300" />
+            {isSaving ? (
+                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+                <>
+                    <StopIcon />
+                    <span>Finish Session</span>
+                </>
+            )}
           </button>
 
+          {/* Secondary Action: Discard */}
           <button
-            onClick={() => navigate("/")}
-            className="mt-4 text-slate-500 hover:text-slate-300 text-sm transition-all"
+            onClick={handleCancel}
+            disabled={isSaving}
+            className="w-full h-12 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-colors text-sm font-medium"
           >
-            Cancel (session won't be saved)
+            <TrashIcon />
+            Discard
           </button>
         </div>
+
       </div>
     </div>
   );
