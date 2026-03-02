@@ -11,7 +11,6 @@ import type {
   ActivityWithSessions,
 } from "../types/database";
 
-// --- Visual Assets (Icons) ---
 const FlameIcon = ({ className = "" }: { className?: string }) => (
   <svg
     viewBox="0 0 24 24"
@@ -91,16 +90,6 @@ export default function DashboardPage() {
 
   const isLoading = profileLoading || categoriesLoading;
 
-  useEffect(() => {
-    if (!profile) return;
-    checkMissedDay(profile);
-  }, [profile]);
-
-  // Trigger simple entrance animation
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - 6 + i);
@@ -108,6 +97,27 @@ export default function DashboardPage() {
   });
 
   const activeDates = new Set(weeklyActivity?.map((s) => s.date));
+
+  const recentActivities = categories
+    ? categories
+        .flatMap((cat) => cat.activities || [])
+        .filter((act) => act.sessions && act.sessions.length > 0)
+        .sort((a, b) => {
+          const lastA = new Date(a.sessions[a.sessions.length - 1].date).getTime();
+          const lastB = new Date(b.sessions[b.sessions.length - 1].date).getTime();
+          return lastB - lastA;
+        })
+        .slice(0, 2)
+    : [];
+
+  useEffect(() => {
+    if (!profile) return;
+    checkMissedDay(profile);
+  }, [profile]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (isLoading) {
     return (
@@ -141,9 +151,8 @@ export default function DashboardPage() {
         <div className="absolute bottom-[-10%] left-[20%] w-[600px] h-[600px] bg-indigo-500/5 blur-[120px] rounded-full" />
       </div>
 
-      <div
-        className={`relative max-w-md mx-auto px-5 pt-8 transition-opacity duration-700 ${mounted ? "opacity-100" : "opacity-0"}`}
-      >
+      <div className={`relative max-w-md mx-auto px-5 pt-8 transition-opacity duration-700 ${mounted ? "opacity-100" : "opacity-0"}`}>
+        
         {/* --- Header --- */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -168,18 +177,15 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* --- Hero Card (Glassmorphism) --- */}
+        {/* --- Hero Card --- */}
         <div className="relative group mb-8">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
           <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden">
-            {/* Background Pattern within card */}
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-
             <div className="relative z-10 flex flex-col items-center">
               <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
                 Current Streak
               </p>
-
               <div className="flex items-end gap-3 mb-2">
                 <span className="text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 leading-none tracking-tighter drop-shadow-lg">
                   {profile?.streak_count ?? 0}
@@ -190,7 +196,6 @@ export default function DashboardPage() {
                   </span>
                 </div>
               </div>
-
               <p className="text-slate-400 text-sm font-medium">
                 {profile?.streak_count === 1 ? "Day" : "Days"} on fire
               </p>
@@ -224,14 +229,11 @@ export default function DashboardPage() {
                   {[...Array(2)].map((_, i) => (
                     <div
                       key={i}
-                      className={`
-                                    w-8 h-8 rounded-lg flex items-center justify-center text-lg border transition-all duration-300
-                                    ${
-                                      i < (profile?.freeze_tokens ?? 0)
-                                        ? "bg-blue-500/20 border-blue-400/30 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-                                        : "bg-slate-800/50 border-slate-700 text-slate-600 opacity-50 grayscale"
-                                    }
-                                `}
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center text-lg border transition-all duration-300 ${
+                        i < (profile?.freeze_tokens ?? 0)
+                          ? "bg-blue-500/20 border-blue-400/30 text-blue-200 shadow-[0_0_10px_rgba(59,130,246,0.3)]"
+                          : "bg-slate-800/50 border-slate-700 text-slate-600 opacity-50 grayscale"
+                      }`}
                     >
                       🧊
                     </div>
@@ -241,6 +243,42 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* --- Quick Start Section --- */}
+{recentActivities.length > 0 && (
+  <div className="mb-8">
+    <h2 className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-4 pl-2">
+      ⚡ Quick Start
+    </h2>
+    <div className="grid gap-3">
+      {recentActivities.map((activity) => (
+        <div
+          key={activity.id}
+          className="group relative bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+          <div className="flex items-center justify-between p-4 relative z-10">
+            <div className="flex-1 min-w-0 mr-4">
+              <span className="text-orange-500/70 text-[10px] font-bold uppercase tracking-wider">
+                Quick Start
+              </span>
+              <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
+                {activity.name}
+              </h3>
+            </div>
+            <button
+              onClick={() => navigate(`/session/${activity.id}`)}
+              className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
+              aria-label="Start Session"
+            >
+              <PlayIcon />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
         {/* --- Categories & Activities --- */}
         <div className="space-y-8">
@@ -279,74 +317,62 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   ) : (
-                    category.activities?.map(
-                      (activity: ActivityWithSessions) => (
-                        <div
-                          key={activity.id}
-                          className="group relative bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-
-                          <div className="flex items-center justify-between p-4 relative z-10">
-                            <div className="flex-1 min-w-0 mr-4">
-                              <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
-                                {activity.name}
-                              </h3>
-
-                              {/* Stats Pills */}
-                              <div className="flex flex-wrap gap-2 mt-2">
-                                {activity.sessions.length > 0 ? (
-                                  <>
-                                    <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
-                                      <ClockIcon />
-                                      <span className="text-[10px] font-medium text-slate-400 uppercase">
-                                        Last
-                                      </span>
-                                      <span className="text-xs font-semibold text-slate-200 font-mono">
-                                        {formatDuration(
-                                          activity.sessions[
-                                            activity.sessions.length - 1
-                                          ].duration_seconds ?? 0,
-                                        )}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
-                                      <TrophyIcon />
-                                      <span className="text-[10px] font-medium text-slate-400 uppercase">
-                                        Best
-                                      </span>
-                                      <span className="text-xs font-semibold text-amber-200 font-mono">
-                                        {formatDuration(
-                                          Math.max(
-                                            ...activity.sessions.map(
-                                              (s) => s.duration_seconds ?? 0,
-                                            ),
-                                          ),
-                                        )}
-                                      </span>
-                                    </div>
-                                  </>
-                                ) : (
-                                  <span className="text-xs text-slate-500 italic">
-                                    No sessions recorded yet
-                                  </span>
-                                )}
-                              </div>
+                    category.activities?.map((activity: ActivityWithSessions) => (
+                      <div
+                        key={activity.id}
+                        className="group relative bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:-translate-y-1"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
+                        <div className="flex items-center justify-between p-4 relative z-10">
+                          <div className="flex-1 min-w-0 mr-4">
+                            <h3 className="text-white font-bold text-lg truncate group-hover:text-orange-100 transition-colors">
+                              {activity.name}
+                            </h3>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {activity.sessions.length > 0 ? (
+                                <>
+                                  <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                    <ClockIcon />
+                                    <span className="text-[10px] font-medium text-slate-400 uppercase">
+                                      Last
+                                    </span>
+                                    <span className="text-xs font-semibold text-slate-200 font-mono">
+                                      {formatDuration(
+                                        activity.sessions[activity.sessions.length - 1].duration_seconds ?? 0,
+                                      )}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
+                                    <TrophyIcon />
+                                    <span className="text-[10px] font-medium text-slate-400 uppercase">
+                                      Best
+                                    </span>
+                                    <span className="text-xs font-semibold text-amber-200 font-mono">
+                                      {formatDuration(
+                                        Math.max(
+                                          ...activity.sessions.map((s) => s.duration_seconds ?? 0),
+                                        ),
+                                      )}
+                                    </span>
+                                  </div>
+                                </>
+                              ) : (
+                                <span className="text-xs text-slate-500 italic">
+                                  No sessions recorded yet
+                                </span>
+                              )}
                             </div>
-
-                            <button
-                              onClick={() =>
-                                navigate(`/session/${activity.id}`)
-                              }
-                              className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
-                              aria-label="Start Session"
-                            >
-                              <PlayIcon />
-                            </button>
                           </div>
+                          <button
+                            onClick={() => navigate(`/session/${activity.id}`)}
+                            className="relative flex items-center justify-center w-12 h-12 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full text-white shadow-lg shadow-orange-900/20 group-hover:shadow-orange-500/40 group-hover:scale-110 transition-all duration-300 active:scale-95"
+                            aria-label="Start Session"
+                          >
+                            <PlayIcon />
+                          </button>
                         </div>
-                      ),
-                    )
+                      </div>
+                    ))
                   )}
                 </div>
               </div>
