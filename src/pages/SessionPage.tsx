@@ -96,6 +96,7 @@ export default function SessionPage() {
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["weeklyActivity", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["yearlyActivity", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["activityDetails"] })
       
       navigate("/");
     } catch (err) {
