@@ -2,28 +2,9 @@
 import { useNavigate } from "react-router-dom";
 import { useSessionHistory } from "../hooks/useSessionHistory";
 import BottomNav from "../components/BottomNav";
-
-// --- Icons ---
-const ArrowLeftIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M15 19l-7-7 7-7" />
-  </svg>
-);
-
-const ClockIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="10" />
-    <polyline points="12 6 12 12 16 14" />
-  </svg>
-);
-
-const HistoryIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-    <path d="M3 3v5h5" />
-    <path d="M12 7v5l4 2" />
-  </svg>
-);
+import PageBackground from "../components/PageBackground";
+import { ArrowLeftIcon, ClockIcon, HistoryIcon } from "../components/Icons";
+import { formatDuration, formatDate } from "../lib/utils";
 
 const CalendarIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -34,25 +15,6 @@ const CalendarIcon = () => (
   </svg>
 );
 
-// --- Helpers ---
-function formatDuration(seconds: number): string {
-  const hrs = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  if (hrs > 0) return `${hrs}h ${mins}m`;
-  if (mins > 0) return `${mins}m ${secs}s`;
-  return `${secs}s`;
-}
-
-function formatDate(dateStr: string): string {
-  return new Date(dateStr + "T12:00:00").toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
 export default function HistoryPage() {
   const navigate = useNavigate();
   const { sessions, isLoading, isFetching, hasMore, loadMore } = useSessionHistory();
@@ -61,8 +23,8 @@ export default function HistoryPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col gap-4 items-center justify-center">
         <div className="relative">
-            <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
-            <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
+          <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+          <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
         </div>
       </div>
     );
@@ -70,14 +32,7 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28 text-slate-100 font-sans selection:bg-orange-500/30">
-
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
-        <div className="absolute top-[20%] right-[-20%] w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full mix-blend-screen" />
-        {/* Noise Texture */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-      </div>
+      <PageBackground />
 
       <div className="relative max-w-md mx-auto px-5 pt-8 animate-in slide-in-from-bottom-5 duration-700 fade-in">
 
@@ -89,35 +44,30 @@ export default function HistoryPage() {
           >
             <ArrowLeftIcon />
           </button>
-          
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center text-orange-500 shadow-lg">
-                <HistoryIcon />
-             </div>
-             <div>
-                <p className="text-[10px] text-orange-500/80 font-bold uppercase tracking-widest mb-0.5">Global Log</p>
-                <h1 className="text-2xl font-black tracking-tight text-white">
-                  Session History
-                </h1>
-             </div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border border-white/5 flex items-center justify-center text-orange-500 shadow-lg">
+              <HistoryIcon size={24} />
+            </div>
+            <div>
+              <p className="text-[10px] text-orange-500/80 font-bold uppercase tracking-widest mb-0.5">Global Log</p>
+              <h1 className="text-2xl font-black tracking-tight text-white">Session History</h1>
+            </div>
           </div>
         </div>
 
         {/* Session Count Badge */}
         <div className="flex items-center justify-between mb-4 px-1">
-            <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">
-                Recent Entries
-            </span>
-            <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-900/50 border border-white/5 px-2 py-1 rounded-md">
-                {sessions.length} Loaded
-            </span>
+          <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">Recent Entries</span>
+          <span className="text-[10px] font-mono font-medium text-slate-400 bg-slate-900/50 border border-white/5 px-2 py-1 rounded-md">
+            {sessions.length} Loaded
+          </span>
         </div>
 
         {/* Session List */}
         {sessions.length === 0 ? (
           <div className="bg-slate-900/30 rounded-[2rem] p-10 border-2 border-dashed border-slate-800 text-center flex flex-col items-center">
             <div className="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center text-slate-600 mb-3">
-               <HistoryIcon />
+              <HistoryIcon size={24} />
             </div>
             <p className="text-slate-400 font-medium">No sessions recorded yet.</p>
             <p className="text-slate-600 text-xs mt-1">Complete your first session to see it here.</p>
@@ -130,34 +80,27 @@ export default function HistoryPage() {
                 className="group relative bg-slate-900/40 hover:bg-slate-800/60 backdrop-blur-md rounded-2xl p-1 border border-white/5 hover:border-orange-500/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
-                {/* Gradient Hover Effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 via-orange-500/5 to-orange-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-2xl" />
-
                 <div className="relative z-10 p-4">
-                  
-                  {/* Top Row: Activity Name & Duration */}
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-white font-bold text-base truncate pr-4 group-hover:text-orange-100 transition-colors">
-                        {session.activities?.name ?? "Unknown Activity"}
+                      {session.activities?.name ?? "Unknown Activity"}
                     </h3>
                     <div className="shrink-0 flex items-center gap-1.5 bg-slate-950/50 px-2.5 py-1 rounded-md border border-slate-700/50">
-                      <ClockIcon />
+                      <ClockIcon size={14} />
                       <span className="text-xs font-bold text-orange-400 font-mono">
                         {formatDuration(session.duration_seconds ?? 0)}
                       </span>
                     </div>
                   </div>
-
-                  {/* Bottom Row: Date & Notes */}
                   <div className="flex items-start justify-between gap-4">
-                     <div className="flex items-center gap-1.5 text-slate-500">
-                        <CalendarIcon />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">
-                            {formatDate(session.date)}
-                        </span>
-                     </div>
+                    <div className="flex items-center gap-1.5 text-slate-500">
+                      <CalendarIcon />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">
+                        {formatDate(session.date)}
+                      </span>
+                    </div>
                   </div>
-
                   {session.notes && (
                     <div className="mt-3 text-xs text-slate-400 pl-3 border-l-2 border-slate-700/50 italic bg-slate-950/20 py-2 pr-2 rounded-r-lg">
                       "{session.notes}"
@@ -184,12 +127,11 @@ export default function HistoryPage() {
 
         {!hasMore && sessions.length > 0 && (
           <div className="mt-8 pb-4 flex items-center justify-center gap-2 opacity-50">
-             <div className="h-[1px] w-12 bg-slate-800"></div>
-             <p className="text-center text-slate-600 text-[10px] uppercase tracking-widest">End of Log</p>
-             <div className="h-[1px] w-12 bg-slate-800"></div>
+            <div className="h-[1px] w-12 bg-slate-800"></div>
+            <p className="text-center text-slate-600 text-[10px] uppercase tracking-widest">End of Log</p>
+            <div className="h-[1px] w-12 bg-slate-800"></div>
           </div>
         )}
-
       </div>
       <BottomNav />
     </div>

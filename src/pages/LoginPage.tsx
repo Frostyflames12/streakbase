@@ -1,8 +1,9 @@
 // src/pages/LoginPage.tsx
 import { Link } from 'react-router-dom'
 import { useLogin } from '../hooks/useLogin'
+import { FlameIcon } from '../components/Icons'
 
-// --- Icons ---
+// --- Page-specific icons ---
 const MailIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect width="20" height="16" x="2" y="4" rx="2" />
@@ -24,44 +25,31 @@ const ArrowRightIcon = () => (
   </svg>
 )
 
-const FlameIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">
-    <path 
-      d="M8.5 14.5C7.5 13 7 11.5 7 9.5C7 6 9.5 3 12 2C14.5 3 17 6 17 9.5C17 11.5 16.5 13 15.5 14.5C17 15.5 18 17.5 18 19.5C18 21.5 16 23 14 23C13 23 11.5 22 12 20C12.5 18 14 16.5 14.5 15.5C13.5 15 12 14 10.5 15.5C9 17 8.5 18.5 8 20C7.5 21.5 6 23 4 23C2 23 0 21.5 0 19.5C0 17.5 1 15.5 2.5 14.5C1.5 13 1 11.5 1 9.5C1 4 6 0 12 0C18 0 23 4 23 9.5C23 11.5 22.5 13 21.5 14.5C23 15.5 24 17.5 24 19.5C24 22.5 21 24 18 24C15.5 24 14 22.5 14 21.5C14 22.5 12.5 24 10 24C7 24 4 22.5 4 19.5C4 17.5 5 15.5 6.5 14.5C5.5 13 5 11.5 5 9.5C5 6.5 7 4.5 8.5 3.5C7.5 5.5 7 7.5 7 9.5C7 11.5 7.5 13 8.5 14.5Z" 
-      fill="url(#flameGradient_login)"
-    />
-    <defs>
-      <linearGradient id="flameGradient_login" x1="12" y1="0" x2="12" y2="24" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#ea580c" />
-        <stop offset="1" stopColor="#fbbf24" />
-      </linearGradient>
-    </defs>
-  </svg>
-)
-
 export default function LoginPage() {
   const { formData, error, loading, handleChange, handleLogin } = useLogin()
 
   return (
     <div className="relative min-h-screen bg-slate-950 flex items-center justify-center p-6 overflow-hidden font-sans selection:bg-orange-500/30">
-      
+
       {/* Background Effects */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[120px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full mix-blend-screen" />
-      {/* Noise Texture */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
 
       <div className="relative w-full max-w-md z-10 animate-in slide-in-from-bottom-5 duration-700 fade-in">
         <div className="bg-slate-900/60 backdrop-blur-xl rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/10 relative overflow-hidden group/card">
-          
-          {/* Subtle top sheen */}
+
+          {/* Top sheen */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
-          {/* Logo Area - Added Hover Scale */}
+          {/* Logo */}
           <div className="flex flex-col items-center justify-center mb-10 group/logo cursor-default">
             <div className="relative mb-4 transition-transform duration-500 group-hover/logo:scale-110">
-               <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full group-hover/logo:bg-orange-500/30 transition-colors"></div>
-               <FlameIcon />
+              <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full group-hover/logo:bg-orange-500/30 transition-colors"></div>
+              <FlameIcon
+                className="w-10 h-10 drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]"
+                gradientId="flameGradient_login"
+              />
             </div>
             <h1 className="text-3xl font-black text-white tracking-tight italic flex items-center gap-2">
               STREAK
@@ -72,7 +60,7 @@ export default function LoginPage() {
             <p className="text-slate-500 text-sm font-medium mt-2">Welcome back, Legend.</p>
           </div>
 
-          {/* Error Message */}
+          {/* Error */}
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-xl mb-6 text-sm flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
               <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -96,18 +84,15 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
-                  // Added "autofill" class logic via Tailwind to keep background dark
                   className="w-full py-4 pl-12 pr-4 rounded-xl bg-slate-950/50 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder:text-slate-700 text-sm [&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:-webkit-text-fill-color-white"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] ml-1 block">
-                  Password
-                </label>
-              </div>
+              <label className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] ml-1 mb-2 block">
+                Password
+              </label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-orange-500 transition-colors">
                   <LockIcon />
@@ -124,25 +109,25 @@ export default function LoginPage() {
             </div>
 
             <div className="pt-2">
-                <button
+              <button
                 disabled={loading}
                 className="group relative w-full py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-lg shadow-lg shadow-orange-900/20 hover:shadow-orange-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 overflow-hidden"
-                >
+              >
                 <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                 <div className="relative flex items-center justify-center gap-2">
-                    {loading ? (
-                        <>
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            <span>Verifying...</span>
-                        </>
-                    ) : (
-                        <>
-                            <span>Sign In</span>
-                            <ArrowRightIcon />
-                        </>
-                    )}
+                  {loading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Verifying...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Sign In</span>
+                      <ArrowRightIcon />
+                    </>
+                  )}
                 </div>
-                </button>
+              </button>
             </div>
           </form>
 
@@ -156,12 +141,10 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-        
-        {/* Footer Branding */}
-        <div className="text-center mt-6 opacity-30 hover:opacity-100 transition-opacity duration-500">
-            <p className="text-[10px] text-slate-400 uppercase tracking-widest">Streak Base v1.0</p>
-        </div>
 
+        <div className="text-center mt-6 opacity-30 hover:opacity-100 transition-opacity duration-500">
+          <p className="text-[10px] text-slate-400 uppercase tracking-widest">Streak Base v2.0</p>
+        </div>
       </div>
     </div>
   )

@@ -1,26 +1,14 @@
 // src/pages/CategoriesPage.tsx
 import { useState } from 'react'
 import BottomNav from '../components/BottomNav'
+import PageBackground from '../components/PageBackground'
 import ConfirmModal from '../components/ConfirmModal'
+import { PlusIcon, TrashIcon } from '../components/Icons'
 import { useCategories } from '../hooks/useCategories'
 import { useCategoryMutations } from '../hooks/useCategoryMutations'
 import type { CategoryWithActivities, ActivityWithSessions } from '../types/database'
 
-// --- Icons ---
-const PlusIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19"></line>
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-  </svg>
-)
-
-const TrashIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-  </svg>
-)
-
+// --- Page-specific icons ---
 const FolderIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
@@ -32,14 +20,6 @@ const LayersIcon = () => (
     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
     <polyline points="2 17 12 22 22 17"></polyline>
     <polyline points="2 12 12 17 22 12"></polyline>
-  </svg>
-)
-
-const MoreIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="1"></circle>
-    <circle cx="19" cy="12" r="1"></circle>
-    <circle cx="5" cy="12" r="1"></circle>
   </svg>
 )
 
@@ -89,7 +69,7 @@ export default function CategoriesPage() {
     ) ?? 0
 
     const message = activityCount === 0
-      ? `"${category.name}" and all of it's activities will be permanently removed.`
+      ? `"${category.name}" will be permanently removed.`
       : `"${category.name}" and its ${activityCount} activit${activityCount !== 1 ? 'ies' : 'y'} and ${sessionCount} session${sessionCount !== 1 ? 's' : ''} will be permanently removed.`
 
     setModal({
@@ -125,8 +105,8 @@ export default function CategoriesPage() {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col gap-4 items-center justify-center">
         <div className="relative">
-            <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
-            <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
+          <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+          <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
         </div>
       </div>
     )
@@ -134,23 +114,17 @@ export default function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28 text-slate-100 font-sans selection:bg-orange-500/30">
-
-      {/* Background Effects */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
-        <div className="absolute top-[20%] right-[-20%] w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full mix-blend-screen" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
-      </div>
+      <PageBackground />
 
       <div className="relative max-w-md mx-auto px-5 pt-8 animate-in slide-in-from-bottom-5 duration-700 fade-in">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="relative">
-             <div className="absolute inset-0 bg-blue-500/20 blur-md rounded-full" />
-             <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center border border-white/5 relative z-10">
-                <FolderIcon />
-             </div>
+            <div className="absolute inset-0 bg-blue-500/20 blur-md rounded-full" />
+            <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center border border-white/5 relative z-10">
+              <FolderIcon />
+            </div>
           </div>
           <h1 className="text-3xl font-black tracking-tight italic">
             MANAGE
@@ -161,7 +135,7 @@ export default function CategoriesPage() {
         </div>
 
         {/* Add Category Section */}
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-[1.5rem] p-6 border border-white/10 shadow-xl mb-8 group hover:border-orange-500/20 transition-colors">
+        <div className="bg-slate-900/60 backdrop-blur-xl rounded-[1.5rem] p-6 border border-white/10 shadow-xl mb-8 hover:border-orange-500/20 transition-colors">
           <h2 className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">
             Create New Category
           </h2>
@@ -201,9 +175,8 @@ export default function CategoriesPage() {
                 className="group relative bg-slate-900/40 backdrop-blur-md rounded-3xl p-1 border border-white/5 animate-in slide-in-from-bottom-5 duration-500 fill-mode-backwards transition-all hover:border-white/10 hover:shadow-lg"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                 {/* Card Sheen Effect */}
-                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl" />
-                
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl" />
+
                 <div className="p-5 relative z-10">
                   {/* Category Header */}
                   <div className="flex items-center justify-between mb-6">
@@ -276,7 +249,6 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      {/* Confirm Modal */}
       <ConfirmModal
         isOpen={modal.isOpen}
         title={modal.title}
