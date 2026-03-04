@@ -52,15 +52,15 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
 
       <div className="relative w-full max-w-md z-10 animate-in slide-in-from-bottom-5 duration-700 fade-in">
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/10 relative overflow-hidden">
+        <div className="bg-slate-900/60 backdrop-blur-xl rounded-[2rem] p-8 md:p-10 shadow-2xl border border-white/10 relative overflow-hidden group/card">
           
           {/* Subtle top sheen */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
 
-          {/* Logo Area */}
-          <div className="flex flex-col items-center justify-center mb-10">
-            <div className="relative mb-4">
-               <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full"></div>
+          {/* Logo Area - Added Hover Scale */}
+          <div className="flex flex-col items-center justify-center mb-10 group/logo cursor-default">
+            <div className="relative mb-4 transition-transform duration-500 group-hover/logo:scale-110">
+               <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full group-hover/logo:bg-orange-500/30 transition-colors"></div>
                <FlameIcon />
             </div>
             <h1 className="text-3xl font-black text-white tracking-tight italic flex items-center gap-2">
@@ -96,15 +96,18 @@ export default function LoginPage() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
-                  className="w-full py-4 pl-12 pr-4 rounded-xl bg-slate-950/50 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder:text-slate-700 text-sm"
+                  // Added "autofill" class logic via Tailwind to keep background dark
+                  className="w-full py-4 pl-12 pr-4 rounded-xl bg-slate-950/50 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder:text-slate-700 text-sm [&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:-webkit-text-fill-color-white"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] ml-1 mb-2 block">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] ml-1 block">
+                  Password
+                </label>
+              </div>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within:text-orange-500 transition-colors">
                   <LockIcon />
@@ -115,7 +118,7 @@ export default function LoginPage() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full py-4 pl-12 pr-4 rounded-xl bg-slate-950/50 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder:text-slate-700 text-sm"
+                  className="w-full py-4 pl-12 pr-4 rounded-xl bg-slate-950/50 text-white border border-slate-700/50 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500 transition-all placeholder:text-slate-700 text-sm [&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:-webkit-text-fill-color-white"
                 />
               </div>
             </div>

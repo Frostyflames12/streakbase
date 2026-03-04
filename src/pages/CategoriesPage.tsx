@@ -28,10 +28,18 @@ const FolderIcon = () => (
 )
 
 const LayersIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
     <polyline points="2 17 12 22 22 17"></polyline>
     <polyline points="2 12 12 17 22 12"></polyline>
+  </svg>
+)
+
+const MoreIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="1"></circle>
+    <circle cx="19" cy="12" r="1"></circle>
+    <circle cx="5" cy="12" r="1"></circle>
   </svg>
 )
 
@@ -115,9 +123,10 @@ export default function CategoriesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-950 flex flex-col gap-4 items-center justify-center">
         <div className="relative">
-          <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+            <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+            <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
         </div>
       </div>
     )
@@ -137,8 +146,11 @@ export default function CategoriesPage() {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center border border-white/5">
-            <FolderIcon />
+          <div className="relative">
+             <div className="absolute inset-0 bg-blue-500/20 blur-md rounded-full" />
+             <div className="w-10 h-10 rounded-full bg-slate-800/50 flex items-center justify-center border border-white/5 relative z-10">
+                <FolderIcon />
+             </div>
           </div>
           <h1 className="text-3xl font-black tracking-tight italic">
             MANAGE
@@ -160,7 +172,7 @@ export default function CategoriesPage() {
               onChange={e => setNewCategoryName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleCreateCategory()}
               placeholder="e.g. Work, Fitness, Hobby..."
-              className="flex-1 bg-slate-950/50 text-white text-sm px-4 py-3 rounded-xl border border-slate-700/50 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-slate-600"
+              className="flex-1 bg-slate-950/50 text-white text-sm px-4 py-3 rounded-xl border border-slate-700/50 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all placeholder:text-slate-600 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:-webkit-text-fill-color-white"
             />
             <button
               onClick={handleCreateCategory}
@@ -175,25 +187,28 @@ export default function CategoriesPage() {
         {/* Categories List */}
         <div className="flex flex-col gap-6">
           {!categories || categories.length === 0 ? (
-            <div className="bg-slate-900/40 border-2 border-dashed border-slate-800 rounded-3xl p-10 flex flex-col items-center text-center">
+            <div className="bg-slate-900/30 border-2 border-dashed border-slate-800 rounded-3xl p-10 flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center text-slate-600 mb-4">
                 <LayersIcon />
               </div>
-              <p className="text-slate-400 font-medium">No categories yet</p>
-              <p className="text-slate-600 text-xs mt-1">Create one above to get started.</p>
+              <p className="text-slate-400 font-bold mb-1">No categories yet</p>
+              <p className="text-slate-600 text-xs">Create one above to get started.</p>
             </div>
           ) : (
             categories.map((category: CategoryWithActivities, index) => (
               <div
                 key={category.id}
-                className="bg-slate-900/40 backdrop-blur-md rounded-3xl p-1 border border-white/5 animate-in slide-in-from-bottom-5 duration-500 fill-mode-backwards"
+                className="group relative bg-slate-900/40 backdrop-blur-md rounded-3xl p-1 border border-white/5 animate-in slide-in-from-bottom-5 duration-500 fill-mode-backwards transition-all hover:border-white/10 hover:shadow-lg"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="p-5">
+                 {/* Card Sheen Effect */}
+                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl" />
+                
+                <div className="p-5 relative z-10">
                   {/* Category Header */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-6 bg-orange-500 rounded-full"></div>
+                      <div className="w-1.5 h-6 bg-orange-500 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>
                       <h2 className="text-white font-bold text-lg tracking-tight">{category.name}</h2>
                     </div>
                     <button
@@ -208,22 +223,22 @@ export default function CategoriesPage() {
                   {/* Activities List */}
                   <div className="space-y-2 mb-6">
                     {category.activities?.length === 0 ? (
-                      <div className="py-4 text-center border border-dashed border-slate-800 rounded-xl bg-slate-900/20">
+                      <div className="py-6 text-center border border-dashed border-slate-800 rounded-xl bg-slate-950/20">
                         <p className="text-slate-600 text-xs italic">No activities added</p>
                       </div>
                     ) : (
                       category.activities?.map((activity: ActivityWithSessions) => (
                         <div
                           key={activity.id}
-                          className="group flex items-center justify-between bg-slate-950/40 border border-slate-800/50 hover:border-slate-700 rounded-xl px-4 py-3 transition-colors"
+                          className="flex items-center justify-between bg-slate-950/40 border border-slate-800/50 hover:border-slate-700 rounded-xl px-4 py-3 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-orange-500 transition-colors"></div>
+                            <div className="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
                             <span className="text-slate-300 text-sm font-medium">{activity.name}</span>
                           </div>
                           <button
                             onClick={() => handleDeleteActivity(activity)}
-                            className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 p-1 rounded transition-all"
+                            className="text-slate-600 hover:text-red-400 p-1.5 rounded-lg hover:bg-red-500/10 transition-all"
                             title="Delete Activity"
                           >
                             <TrashIcon />
@@ -244,12 +259,12 @@ export default function CategoriesPage() {
                       onChange={e => handleActivityInputChange(category.id, e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleCreateActivity(category.id)}
                       placeholder="Add new activity..."
-                      className="flex-1 bg-slate-950/80 text-white text-xs px-4 py-3 pl-8 rounded-xl border border-slate-800 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-slate-600"
+                      className="flex-1 bg-slate-950/80 text-white text-xs px-4 py-3 pl-8 rounded-xl border border-slate-800 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all placeholder:text-slate-600 [&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:-webkit-text-fill-color-white"
                     />
                     <button
                       onClick={() => handleCreateActivity(category.id)}
                       disabled={createActivity.isPending}
-                      className="bg-slate-800 hover:bg-orange-500 hover:text-white text-slate-400 p-2.5 rounded-xl border border-slate-700 transition-all disabled:opacity-50"
+                      className="bg-slate-800 hover:bg-orange-500 hover:text-white text-slate-400 p-2.5 rounded-xl border border-slate-700 transition-all disabled:opacity-50 active:scale-95"
                     >
                       <PlusIcon />
                     </button>

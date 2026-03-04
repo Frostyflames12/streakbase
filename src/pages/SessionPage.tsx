@@ -8,22 +8,13 @@ import { useStreak } from "../hooks/useStreak";
 
 // --- Icons ---
 const StopIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="drop-shadow-md">
     <rect x="6" y="6" width="12" height="12" rx="2" />
   </svg>
 );
 
 const TrashIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M3 6h18" />
     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -58,7 +49,6 @@ export default function SessionPage() {
 
   // Start Timer
   useEffect(() => {
-    // Prevent accidental navigation away
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
@@ -84,7 +74,6 @@ export default function SessionPage() {
     const endedAt = new Date();
 
     try {
-      // Step 1: Save session
       const { error: sessionError } = await supabase.from("sessions").insert({
         activity_id: activityId,
         user_id: user!.id,
@@ -92,15 +81,13 @@ export default function SessionPage() {
         ended_at: endedAt.toISOString(),
         duration_seconds: elapsedSeconds,
         notes: notes,
-        date: new Date().toLocaleDateString("en-CA"), // Uses local date
+        date: new Date().toLocaleDateString("en-CA"),
       });
 
       if (sessionError) throw sessionError;
 
-      // Step 2: Update streak logic
       await updateStreakAfterSession();
 
-      // Step 3: Refresh data
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["weeklyActivity", user?.id] });
@@ -112,12 +99,10 @@ export default function SessionPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
       setIsSaving(false);
-      // Restart timer if it failed? Optional. For now, we leave it stopped.
     }
   }
 
   function handleCancel() {
-    // Safety check: Don't let them delete > 10 seconds of work without asking
     if (elapsedSeconds > 10) {
       const confirm = window.confirm(
         "Are you sure you want to discard this session? It will not be saved.",
@@ -128,84 +113,81 @@ export default function SessionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans selection:bg-orange-500/30">
+      
       {/* --- Ambient Pulse Background --- */}
-      {/* The 'animate-pulse' gives it a breathing effect */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 blur-[100px] rounded-full pointer-events-none animate-pulse duration-[3000ms]" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none animate-pulse duration-[4000ms]" />
+      {/* Noise Texture */}
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
 
-      <div className="relative w-full max-w-sm z-10 flex flex-col items-center">
+      <div className="relative w-full max-w-sm z-10 flex flex-col items-center animate-in fade-in duration-1000">
+        
         {/* Status Pill */}
-        <div className="mb-10 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">
-          • Focus Mode Active
+        <div className="mb-12 flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/50 border border-orange-500/30 backdrop-blur-md shadow-[0_0_15px_rgba(249,115,22,0.2)]">
+           <div className="w-2 h-2 bg-orange-500 rounded-full animate-ping" />
+           <span className="text-[10px] font-bold text-orange-400 uppercase tracking-[0.2em]">Focus Mode Active</span>
         </div>
 
         {/* --- Main Timer --- */}
-        <div className="mb-12 relative">
-          {/* Glowing blur behind numbers */}
-          <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full opacity-50"></div>
-          <span className="relative z-10 text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 tabular-nums tracking-tight font-mono drop-shadow-2xl">
+        <div className="mb-16 relative group cursor-default">
+          {/* Subtle Glow behind text */}
+          <div className="absolute -inset-4 bg-orange-500/20 blur-3xl rounded-full opacity-0 group-hover:opacity-40 transition-opacity duration-1000"></div>
+          
+          <span className="relative z-10 text-8xl sm:text-9xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 tabular-nums tracking-tighter font-mono drop-shadow-2xl select-none">
             {formatTime(elapsedSeconds)}
           </span>
         </div>
 
         {/* --- Notes Input --- */}
-        <div className="w-full mb-8 group">
-          <div className="relative">
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add a note about this session..."
-              className="w-full bg-slate-900/50 backdrop-blur-md border border-white/10 rounded-2xl p-5 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-transparent transition-all resize-none h-32 text-sm leading-relaxed"
-            />
-            {/* Subtle corner accent */}
-            <div className="absolute bottom-3 right-3 pointer-events-none">
-              <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="none"
-                className="text-slate-700"
-              >
-                <path d="M10 10L0 10L10 0V10Z" fill="currentColor" />
-              </svg>
-            </div>
-          </div>
+        <div className="w-full mb-8 relative group">
+           {/* Focus Glow Effect */}
+           <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-2xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-500 blur-sm"></div>
+           
+           <textarea
+             id="notes"
+             value={notes}
+             onChange={(e) => setNotes(e.target.value)}
+             placeholder="Log your thoughts..."
+             className="relative w-full bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 text-slate-200 placeholder:text-slate-600 text-sm leading-relaxed focus:outline-none focus:border-orange-500/30 transition-all resize-none h-32 shadow-xl"
+           />
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="w-full bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-6 text-sm text-center">
+          <div className="w-full bg-red-500/10 border border-red-500/20 text-red-200 p-3 rounded-xl mb-6 text-xs text-center animate-in fade-in slide-in-from-top-1">
             {error}
           </div>
         )}
 
         {/* --- Controls --- */}
-        <div className="w-full flex flex-col gap-3">
+        <div className="w-full flex flex-col gap-4">
           {/* Main Action: Stop & Save */}
           <button
             onClick={handleStop}
             disabled={isSaving}
-            className="group relative w-full h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98] disabled:opacity-50 overflow-hidden flex items-center justify-center gap-2"
+            className="group relative w-full h-16 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-600 text-white font-bold text-lg shadow-[0_0_40px_-10px_rgba(249,115,22,0.4)] hover:shadow-[0_0_60px_-15px_rgba(249,115,22,0.6)] transition-all transform active:scale-[0.98] disabled:opacity-50 overflow-hidden flex items-center justify-center gap-3"
           >
-            {isSaving ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <StopIcon />
-                <span>Finish Session</span>
-              </>
-            )}
+             {/* Shine effect */}
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
+             
+             {isSaving ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+             ) : (
+               <>
+                 <StopIcon />
+                 <span>Finish Session</span>
+               </>
+             )}
           </button>
 
           {/* Secondary Action: Discard */}
           <button
             onClick={handleCancel}
             disabled={isSaving}
-            className="w-full h-12 rounded-xl flex items-center justify-center gap-2 text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-colors text-sm font-medium"
+            className="flex items-center justify-center gap-2 text-slate-500 hover:text-red-400 text-xs font-bold uppercase tracking-widest transition-colors py-4 opacity-70 hover:opacity-100"
           >
             <TrashIcon />
-            Discard
+            Discard Session
           </button>
         </div>
       </div>

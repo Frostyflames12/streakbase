@@ -118,7 +118,7 @@ export default function ActivityDetailsPage() {
   const { activityId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
- const { activity, sessions, totalCount, isLoading, isFetching, hasMore, loadMore } = useActivityDetails(activityId);
+  const { activity, sessions, totalCount, isLoading, isFetching, hasMore, loadMore } = useActivityDetails(activityId);
 
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editedNotes, setEditedNotes] = useState("");
@@ -152,8 +152,11 @@ export default function ActivityDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="w-12 h-12 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+      <div className="min-h-screen bg-slate-950 flex flex-col gap-4 items-center justify-center">
+        <div className="relative">
+            <div className="w-16 h-16 rounded-full border-4 border-slate-800 border-t-orange-500 animate-spin" />
+            <div className="absolute inset-0 w-16 h-16 rounded-full border-4 border-orange-500/20 blur-sm" />
+        </div>
       </div>
     );
   }
@@ -170,6 +173,8 @@ export default function ActivityDetailsPage() {
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
         <div className="absolute top-[20%] right-[-20%] w-[400px] h-[400px] bg-blue-600/10 blur-[100px] rounded-full mix-blend-screen" />
+        {/* Noise Texture */}
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
       </div>
 
       <div className="relative max-w-md mx-auto px-5 pt-8 animate-in slide-in-from-bottom-5 duration-700 fade-in">
@@ -198,15 +203,17 @@ export default function ActivityDetailsPage() {
 
         {/* Hero Card: Start Session */}
         <div
-          className="relative group mb-8 cursor-pointer"
+          className="relative group mb-8 cursor-pointer perspective-1000"
           onClick={() => navigate(`/session/${activityId}`)}
         >
           <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
           <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden flex flex-col items-center justify-center gap-4 group-hover:-translate-y-1 transition-transform duration-300">
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+            
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-32 h-32 bg-orange-500/10 rounded-full animate-ping opacity-20"></div>
             </div>
+            
             <div className="relative z-10 w-20 h-20 bg-gradient-to-tr from-orange-600 to-amber-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-orange-900/40 group-hover:scale-110 transition-transform duration-300">
               <PlayIcon className="w-8 h-8 ml-1" />
             </div>
@@ -221,7 +228,7 @@ export default function ActivityDetailsPage() {
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group hover:border-white/10 transition-colors">
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
               <ClockIcon />
             </div>
@@ -232,7 +239,7 @@ export default function ActivityDetailsPage() {
               {totalSessions}
             </span>
           </div>
-          <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group">
+          <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group hover:border-white/10 transition-colors">
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity text-amber-500">
               <TrophyIcon />
             </div>
@@ -289,7 +296,8 @@ export default function ActivityDetailsPage() {
                               onClick={() =>
                                 handleEditClick(session.id, session.notes)
                               }
-                              className="w-7 h-7 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center text-slate-400 hover:text-orange-400 hover:border-orange-500/40 transition-all"
+                              className="w-7 h-7 rounded-lg bg-slate-700/20 border border-transparent flex items-center justify-center text-slate-500 opacity-0 group-hover:opacity-100 hover:bg-slate-700 hover:text-white hover:border-slate-600 transition-all"
+                              title="Edit Note"
                             >
                               <EditIcon />
                             </button>
@@ -299,25 +307,26 @@ export default function ActivityDetailsPage() {
 
                       {/* Notes: view mode or edit mode */}
                       {isEditing ? (
-                        <div className="mt-2 space-y-2">
+                        <div className="mt-3 space-y-3 animate-in fade-in slide-in-from-top-1">
                           <textarea
                             value={editedNotes}
                             onChange={(e) => setEditedNotes(e.target.value)}
                             placeholder="Add a note..."
-                            className="w-full bg-slate-900/60 border border-slate-600/50 focus:border-orange-500/50 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none h-24 transition-all"
+                            autoFocus
+                            className="w-full bg-slate-950/80 border border-slate-700/50 focus:border-orange-500/50 rounded-xl p-3 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-orange-500/30 resize-none h-24 transition-all"
                           />
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleSave(session.id)}
                               disabled={isSaving}
-                              className="flex-1 py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50"
+                              className="flex-1 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 shadow-lg shadow-orange-900/20"
                             >
-                              {isSaving ? "Saving..." : "Save"}
+                              {isSaving ? "Saving..." : "Save Note"}
                             </button>
                             <button
                               onClick={handleCancel}
                               disabled={isSaving}
-                              className="flex-1 py-2 rounded-xl bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50"
+                              className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 border border-white/5"
                             >
                               Cancel
                             </button>
@@ -325,7 +334,7 @@ export default function ActivityDetailsPage() {
                         </div>
                       ) : (
                         session.notes && (
-                          <div className="mt-2 text-sm text-slate-300 pl-3 border-l-2 border-slate-700/50 italic">
+                          <div className="mt-2 text-sm text-slate-300 pl-3 border-l-2 border-slate-700/50 italic bg-slate-900/20 py-2 pr-2 rounded-r-lg">
                             "{session.notes}"
                           </div>
                         )
@@ -339,7 +348,7 @@ export default function ActivityDetailsPage() {
         </div>
 
         {hasMore && (
-          <div className="flex justify-center pt-2">
+          <div className="flex justify-center pt-6 pb-2">
             <button
               onClick={loadMore}
               disabled={isFetching}
@@ -351,8 +360,8 @@ export default function ActivityDetailsPage() {
         )}
 
         {!hasMore && sessions.length > 0 && (
-          <p className="text-center text-slate-600 text-xs pt-2 pb-4">
-            All sessions loaded.
+          <p className="text-center text-slate-600 text-[10px] uppercase tracking-widest pt-6 pb-4 opacity-50">
+            End of History
           </p>
         )}
       </div>
