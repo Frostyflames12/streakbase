@@ -7,6 +7,7 @@ import CategoriesPage from "./pages/CategoriesPage";
 import SessionPage from "./pages/SessionPage";
 import ProfilePage from "./pages/ProfilePage";
 import ActivityDetailsPage from "./pages/ActivityDetailsPage";
+import HistoryPage from "./pages/HistoryPage";
 
 function App() {
   return (
@@ -14,47 +15,12 @@ function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/categories"
-        element={
-          <ProtectedRoute>
-            <CategoriesPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/session/:activityId"
-        element={
-          <ProtectedRoute>
-            <SessionPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/activity/:activityId"
-        element={
-          <ProtectedRoute>
-            <ActivityDetailsPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
+      <Route path="/history" element={<ProtectedRoute><HistoryPage /></ProtectedRoute>} />
+      <Route path="/session/:activityId" element={<ProtectedRoute><SessionPage /></ProtectedRoute>} />
+      <Route path="/activity/:activityId" element={<ProtectedRoute><ActivityDetailsPage /></ProtectedRoute>} />
     </Routes>
   );
 }

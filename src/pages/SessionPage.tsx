@@ -14,7 +14,16 @@ const StopIcon = () => (
 );
 
 const TrashIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M3 6h18" />
     <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
     <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -96,8 +105,9 @@ export default function SessionPage() {
       queryClient.invalidateQueries({ queryKey: ["categories", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["weeklyActivity", user?.id] });
       queryClient.invalidateQueries({ queryKey: ["yearlyActivity", user?.id] });
-      queryClient.invalidateQueries({ queryKey: ["activityDetails"] })
-      
+      queryClient.invalidateQueries({ queryKey: ["activityDetails"] });
+      queryClient.invalidateQueries({ queryKey: ["sessionHistory"] });
+
       navigate("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -109,7 +119,9 @@ export default function SessionPage() {
   function handleCancel() {
     // Safety check: Don't let them delete > 10 seconds of work without asking
     if (elapsedSeconds > 10) {
-      const confirm = window.confirm("Are you sure you want to discard this session? It will not be saved.");
+      const confirm = window.confirm(
+        "Are you sure you want to discard this session? It will not be saved.",
+      );
       if (!confirm) return;
     }
     navigate("/");
@@ -117,13 +129,11 @@ export default function SessionPage() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      
       {/* --- Ambient Pulse Background --- */}
       {/* The 'animate-pulse' gives it a breathing effect */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-orange-500/5 blur-[100px] rounded-full pointer-events-none animate-pulse duration-[3000ms]" />
-      
+
       <div className="relative w-full max-w-sm z-10 flex flex-col items-center">
-        
         {/* Status Pill */}
         <div className="mb-10 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">
           • Focus Mode Active
@@ -131,11 +141,11 @@ export default function SessionPage() {
 
         {/* --- Main Timer --- */}
         <div className="mb-12 relative">
-            {/* Glowing blur behind numbers */}
-            <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full opacity-50"></div>
-            <span className="relative z-10 text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 tabular-nums tracking-tight font-mono drop-shadow-2xl">
-                {formatTime(elapsedSeconds)}
-            </span>
+          {/* Glowing blur behind numbers */}
+          <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full opacity-50"></div>
+          <span className="relative z-10 text-7xl sm:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-400 tabular-nums tracking-tight font-mono drop-shadow-2xl">
+            {formatTime(elapsedSeconds)}
+          </span>
         </div>
 
         {/* --- Notes Input --- */}
@@ -150,9 +160,15 @@ export default function SessionPage() {
             />
             {/* Subtle corner accent */}
             <div className="absolute bottom-3 right-3 pointer-events-none">
-                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-slate-700">
-                    <path d="M10 10L0 10L10 0V10Z" fill="currentColor"/>
-                 </svg>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="none"
+                className="text-slate-700"
+              >
+                <path d="M10 10L0 10L10 0V10Z" fill="currentColor" />
+              </svg>
             </div>
           </div>
         </div>
@@ -173,12 +189,12 @@ export default function SessionPage() {
             className="group relative w-full h-14 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-lg shadow-[0_0_20px_rgba(249,115,22,0.3)] hover:shadow-[0_0_30px_rgba(249,115,22,0.5)] transition-all active:scale-[0.98] disabled:opacity-50 overflow-hidden flex items-center justify-center gap-2"
           >
             {isSaving ? (
-                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-                <>
-                    <StopIcon />
-                    <span>Finish Session</span>
-                </>
+              <>
+                <StopIcon />
+                <span>Finish Session</span>
+              </>
             )}
           </button>
 
@@ -192,7 +208,6 @@ export default function SessionPage() {
             Discard
           </button>
         </div>
-
       </div>
     </div>
   );
