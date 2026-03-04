@@ -14,20 +14,47 @@ const PlayIcon = ({ className = "w-6 h-6" }) => (
 );
 
 const ArrowLeftIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M15 19l-7-7 7-7" />
   </svg>
 );
 
 const ClockIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
 
 const TrophyIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
     <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
     <path d="M4 22h16" />
@@ -38,14 +65,32 @@ const TrophyIcon = () => (
 );
 
 const HistoryIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M3 3v5h5" />
     <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8" />
   </svg>
 );
 
 const EditIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
   </svg>
 );
@@ -73,7 +118,7 @@ export default function ActivityDetailsPage() {
   const { activityId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activity, sessions, isLoading } = useActivityDetails(activityId);
+ const { activity, sessions, totalCount, isLoading, isFetching, hasMore, loadMore } = useActivityDetails(activityId);
 
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [editedNotes, setEditedNotes] = useState("");
@@ -113,14 +158,14 @@ export default function ActivityDetailsPage() {
     );
   }
 
-  const totalSessions = sessions?.length ?? 0;
-  const personalBest = sessions && sessions.length > 0
-    ? Math.max(...sessions.map((s) => s.duration_seconds ?? 0))
-    : 0;
+  const totalSessions = totalCount;
+  const personalBest =
+    sessions && sessions.length > 0
+      ? Math.max(...sessions.map((s) => s.duration_seconds ?? 0))
+      : 0;
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28 text-slate-100 font-sans selection:bg-orange-500/30">
-
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-500/10 blur-[100px] rounded-full mix-blend-screen animate-pulse duration-[4000ms]" />
@@ -128,7 +173,6 @@ export default function ActivityDetailsPage() {
       </div>
 
       <div className="relative max-w-md mx-auto px-5 pt-8 animate-in slide-in-from-bottom-5 duration-700 fade-in">
-
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <button
@@ -153,7 +197,10 @@ export default function ActivityDetailsPage() {
         </div>
 
         {/* Hero Card: Start Session */}
-        <div className="relative group mb-8 cursor-pointer" onClick={() => navigate(`/session/${activityId}`)}>
+        <div
+          className="relative group mb-8 cursor-pointer"
+          onClick={() => navigate(`/session/${activityId}`)}
+        >
           <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-500 to-amber-500 rounded-[2rem] opacity-30 blur group-hover:opacity-50 transition duration-500"></div>
           <div className="relative bg-slate-900/60 backdrop-blur-xl rounded-[1.8rem] p-8 border border-white/10 shadow-2xl overflow-hidden flex flex-col items-center justify-center gap-4 group-hover:-translate-y-1 transition-transform duration-300">
             <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay"></div>
@@ -164,7 +211,9 @@ export default function ActivityDetailsPage() {
               <PlayIcon className="w-8 h-8 ml-1" />
             </div>
             <div className="text-center">
-              <h2 className="text-xl font-bold text-white mb-1">Start Session</h2>
+              <h2 className="text-xl font-bold text-white mb-1">
+                Start Session
+              </h2>
               <p className="text-slate-400 text-sm">Ready to crush it?</p>
             </div>
           </div>
@@ -176,14 +225,20 @@ export default function ActivityDetailsPage() {
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
               <ClockIcon />
             </div>
-            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">Total Sessions</span>
-            <span className="text-3xl font-black text-white">{totalSessions}</span>
+            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+              Total Sessions
+            </span>
+            <span className="text-3xl font-black text-white">
+              {totalSessions}
+            </span>
           </div>
           <div className="bg-slate-900/40 backdrop-blur-md border border-white/5 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity text-amber-500">
               <TrophyIcon />
             </div>
-            <span className="text-amber-500/80 text-[10px] font-bold uppercase tracking-wider">Personal Best</span>
+            <span className="text-amber-500/80 text-[10px] font-bold uppercase tracking-wider">
+              Personal Best
+            </span>
             <span className="text-3xl font-black text-white">
               {personalBest > 0 ? formatDuration(personalBest) : "—"}
             </span>
@@ -199,7 +254,9 @@ export default function ActivityDetailsPage() {
           {totalSessions === 0 ? (
             <div className="bg-slate-900/30 rounded-2xl p-8 border border-dashed border-slate-700 text-center">
               <p className="text-slate-500 text-sm">No sessions yet.</p>
-              <p className="text-slate-600 text-xs mt-1">Start your first session above!</p>
+              <p className="text-slate-600 text-xs mt-1">
+                Start your first session above!
+              </p>
             </div>
           ) : (
             <div className="grid gap-3">
@@ -229,7 +286,9 @@ export default function ActivityDetailsPage() {
                           </div>
                           {!isEditing && (
                             <button
-                              onClick={() => handleEditClick(session.id, session.notes)}
+                              onClick={() =>
+                                handleEditClick(session.id, session.notes)
+                              }
                               className="w-7 h-7 rounded-lg bg-slate-700/50 border border-slate-600/50 flex items-center justify-center text-slate-400 hover:text-orange-400 hover:border-orange-500/40 transition-all"
                             >
                               <EditIcon />
@@ -278,6 +337,24 @@ export default function ActivityDetailsPage() {
             </div>
           )}
         </div>
+
+        {hasMore && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={loadMore}
+              disabled={isFetching}
+              className="px-6 py-3 rounded-xl bg-slate-800/60 border border-white/5 text-slate-300 text-sm font-bold hover:bg-slate-700/60 hover:text-white hover:border-orange-500/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isFetching ? "Loading..." : "Load More"}
+            </button>
+          </div>
+        )}
+
+        {!hasMore && sessions.length > 0 && (
+          <p className="text-center text-slate-600 text-xs pt-2 pb-4">
+            All sessions loaded.
+          </p>
+        )}
       </div>
 
       <BottomNav />
