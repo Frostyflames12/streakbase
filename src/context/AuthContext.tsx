@@ -7,7 +7,7 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  signOut: () => Promise<void>; // add this
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,9 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth event:", event, "Session:", session);
       if (event === "INITIAL_SESSION") {
-        // Fires once on load — this is our single source of truth
         setSession(session);
         setIsLoading(false);
       }
@@ -36,9 +34,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
   const signOut = async () => {
     await supabase.auth.signOut();
   };
+
   const value = {
     session,
     user: session?.user ?? null,

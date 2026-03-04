@@ -17,7 +17,6 @@ export function useStreak() {
     today.setHours(0, 0, 0, 0);
 
     if (!lastActiveDateStr) {
-      // First session ever
       return {
         streak_count: 1,
         last_active_date: today.toLocaleDateString("en-CA"),
@@ -33,7 +32,6 @@ export function useStreak() {
     );
 
     if (daysDiff === 0) {
-      // Already did a session today — no change
       return null;
     }
 
@@ -51,7 +49,6 @@ export function useStreak() {
       };
     }
 
-    // 2+ days ago — check freeze tokens
     if (freezeTokens > 0) {
       return {
         streak_count: currentStreak,
@@ -60,7 +57,6 @@ export function useStreak() {
       };
     }
 
-    // No freeze tokens — reset
     return {
       streak_count: 1,
       last_active_date: today.toLocaleDateString("en-CA"),
@@ -77,14 +73,12 @@ export function useStreak() {
 
     if (profileError) throw profileError;
 
-    // Step 3: Calculate streak update
     const update = getStreakUpdate(
       profile.last_active_date,
       profile.streak_count,
       profile.freeze_tokens,
     );
 
-    // Step 4: Apply update if needed
     if (update) {
       const { error: updateError } = await supabase
         .from("profiles")
@@ -108,7 +102,7 @@ export function useStreak() {
       (today.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24),
     );
 
-    if (daysDiff < 2) return; // active yesterday or today — nothing to do
+    if (daysDiff < 2) return;
 
     const update =
       profile.freeze_tokens > 0

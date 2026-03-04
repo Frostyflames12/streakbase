@@ -30,6 +30,7 @@ export function useCategoryMutations() {
         .from('categories')
         .delete()
         .eq('id', categoryId)
+        .eq('user_id', user!.id)
 
       if (error) throw error
     },
@@ -55,6 +56,7 @@ export function useCategoryMutations() {
         .from('activities')
         .delete()
         .eq('id', activityId)
+        .eq('user_id', user!.id)
 
       if (error) throw error
     },
