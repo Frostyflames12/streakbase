@@ -8,7 +8,7 @@
 
 ## 🌐 Live Demo
 
-> **[streakbase.vercel.app](https://streakbase.vercel.app)** 
+> **[streakbase.vercel.app](https://streakbase-fawn.vercel.app/)** 
 
 ---
 
